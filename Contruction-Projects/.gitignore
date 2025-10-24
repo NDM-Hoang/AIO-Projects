@@ -1,0 +1,269 @@
+# =============================================================================
+# .gitignore for Construction Sensor Data Analysis Project
+# =============================================================================
+
+# =============================================================================
+# 🗂️ DATA FILES - Keep only essential data, ignore large datasets
+# =============================================================================
+
+# Raw sensor data (too large for git)
+data/Becker_Keefe_2022/AS_TM_GNSS_Combined/*.csv
+
+# Processed data files (generated from raw data)
+data/processed/*.csv
+
+# Training/testing data (if generated)
+data/training.csv
+data/testing.csv
+
+# =============================================================================
+# 📊 PLOTS & VISUALIZATIONS - Ignore generated plots
+# =============================================================================
+
+# All plot directories
+plots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+
+# HTML outputs
+*.html
+
+# =============================================================================
+# 🐍 PYTHON ENVIRONMENT & DEPENDENCIES
+# =============================================================================
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =============================================================================
+# 📓 JUPYTER NOTEBOOKS
+# =============================================================================
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Jupyter Notebook outputs (optional - uncomment if you want to ignore outputs)
+# *.ipynb
+
+# =============================================================================
+# 🔧 IDE & EDITOR FILES
+# =============================================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# 🖥️ SYSTEM FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# 📦 PACKAGE MANAGERS
+# =============================================================================
+
+# Conda
+.conda/
+.conda-env/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Poetry
+poetry.lock
+
+# =============================================================================
+# 🔐 SECURITY & SECRETS
+# =============================================================================
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# API keys and secrets
+secrets.json
+config.json
+credentials.json
+
+# =============================================================================
+# 📈 DATA SCIENCE SPECIFIC
+# =============================================================================
+
+# Model files
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.model
+
+# Large data files
+*.parquet
+*.feather
+*.arrow
+
+# R files (if any)
+*.RData
+*.rda
+*.rds
+
+# =============================================================================
+# 🧪 TESTING & COVERAGE
+# =============================================================================
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# =============================================================================
+# 📝 DOCUMENTATION
+# =============================================================================
+
+# Sphinx documentation
+docs/_build/
+
+# MkDocs documentation
+/site
+
+# =============================================================================
+# 🚀 DEPLOYMENT & CI/CD
+# =============================================================================
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# =============================================================================
+# 📋 PROJECT SPECIFIC
+# =============================================================================
+
+# Miniforge installer (already downloaded)
+Miniforge3-Linux-x86_64.sh
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.log
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+data/
