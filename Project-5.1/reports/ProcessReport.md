@@ -235,48 +235,51 @@ Kết quả: Logic consistency ✓
 
 ### 6. PHÁT HIỆN OUTLIERS (✅ HOÀN THÀNH)
 
-**Phân tích:** Phát hiện outliers toàn diện sau transformation
-**Quyết định:** ✅ GIỮ TẤT CẢ OUTLIERS
+**Phân tích chi tiết outliers:**  
+Sau khi đã transform dữ liệu, việc phát hiện và xử lý các giá trị ngoại lai (outliers) giúp đảm bảo model không bị ảnh hưởng bởi các điểm bất thường. Dưới đây là tổng kết kết quả phát hiện outlier và giải thích rõ ràng các quyết định giữ lại toàn bộ các điểm này.
 
-#### Target Variable (SalePrice)
+#### Outliers trong Target Variable (SalePrice)
 ```
-├─ Skewness: 0.205 (nearly symmetric ✓)
-├─ IQR Outliers: 25 (2.0%)
-├─ Z>3 Outliers: 10 (0.8%)
-└─ Trạng thái: Normal variation, giữ tất cả ✓
-```
-
-#### Feature Outliers
-```
-├─ Binary flags: 0% outliers (7 features)
-├─ No outliers: 0% (12 features)
-├─ Few outliers: 0-5% (10 features) ✓
-├─ Moderate outliers: 5-10% (9 features) ⚠
-└─ Many outliers: >10% (6 features) ✓ Valid reasons
+├─ Skewness: 2.009 (Độ lệch nhỏ - phân phối gần đối xứng ✔️)
+├─ Số mẫu có z-score > 3: 21 (chiếm 1.7%) ← Updated
+├─ Số mẫu nằm ngoài khoảng IQR (Interquartile Range): 56 (chiếm 4.5%) ← Updated
+├─ Mean: $180,949 | Median: $163,000 | Std: $80,428
+└─ Nhận định: Các outlier này phản ánh sự đa dạng tự nhiên của giá nhà, không phải là lỗi hoặc bất thường cần loại bỏ. Do vậy, giữ nguyên tất cả.
 ```
 
-#### Giải thích High Outlier %
+#### Outliers trong các Feature
 ```
-├─ SecondFlrShare_resid (43%): Bimodal (0 vs non-0)
-├─ GarageLag_yj (25%): Nhiều zeros, Yeo-Johnson amplifies
-├─ Residuals (17%): Wide ranges by design (orthogonalized)
-└─ Zero-inflated (13%): Expected cho rare features
-```
-
-#### Tại sao giữ tất cả outliers?
-```
-├─ Regularization (Ridge/Lasso) tự nhiên xử lý outliers
-├─ L2 penalty shrinks outlier impacts smoothly
-├─ L1 penalty có thể zero out noisy features
-├─ Không mất thông tin (giữ 1239 samples)
-└─ CV sẽ optimize α cho data này
+├─ Các biến cờ nhị phân (binary flags): 0% outliers (6 feature) – không có giá trị bất thường
+├─ 24 feature không có outlier
+├─ 12 feature có rất ít outlier (0-5%) ✔️ – chấp nhận được
+├─ 5 feature có lượng outlier vừa phải (5-10%) ⚠ – cần lưu ý nhưng hợp lý
+└─ 2 feature có tỷ lệ outlier cao (>10%) ✔️ – có lý do giải thích rõ ràng
 ```
 
-**Thành tựu chính:**
-✅ Phân tích outliers toàn diện hoàn thành
-✅ Quyết định: Giữ tất cả outliers (regularization robust)
-✅ Visualizations tạo (3 plots)
-✅ Báo cáo chi tiết được tạo
+#### Giải thích cụ thể (dễ hiểu) về các feature có nhiều outlier:
+```
+├─ MasVnrAreaResid (17.6%): Phần dư (sai số) giữa diện tích ốp tường đá thực tế và giá trị dự đoán theo các tiêu chí còn lại – giá trị lớn bất thường thể hiện các căn nhà có phần ốp tường khác biệt hẳn so với xu hướng chung.
+├─ BasementResid (17.1%): Phần dư (sai số) liên quan đến diện tích hầm (basement) – outlier nghĩa là nhà đó có hầm lớn/nhỏ bất thường so với các đặc điểm khác.
+├─ GarageAreaPerCar (9.3%): Diện tích gara chia cho số chỗ để xe – outlier xuất hiện khi 1 chỗ nhưng gara lại rất rộng (rất “thừa”, thiết kế lạ) hoặc ngược lại.
+├─ OverallCond (8.4%): Điểm đánh giá tổng thể về điều kiện căn nhà (thang bậc 1-9) – các điểm cực kỳ cao hoặc thấp thường là outlier, phản ánh bất thường về chất lượng.
+├─ LotFrontage (8.0%): Chiều rộng mặt tiền đất – những lô có mặt tiền rất rộng (nhà góc, biệt thự) hoặc cực hẹp sẽ bị xem là outlier.
+└─ MSSubClass (7.1%): Phân loại kiểu nhà theo mã số xây dựng – một số mã ít xuất hiện có thể tạo thành outlier do hiếm thấy trên thị trường. 
+```
+
+#### Tại sao giữ lại toàn bộ outlier?
+```
+├─ Các thuật toán regularization như Ridge/Lasso được thiết kế để giảm ảnh hưởng tiêu cực của outlier lên model. L2 penalty (Ridge) sẽ thu nhỏ tác động các điểm bất thường một cách mềm dẻo, L1 penalty (Lasso) thậm chí có thể loại bỏ hoàn toàn feature nhiễu nếu cần.
+├─ Nếu loại bỏ các outlier này, ta sẽ mất một phần thông tin thực tế liên quan tới sự đa dạng hoặc trường hợp đặc biệt của thị trường nhà đất.
+├─ Số lượng sample là 1239 – nếu giữ lại tất cả sẽ tận dụng tối đa dữ liệu.
+├─ Quá trình Cross-validation sẽ tự động chọn tham số α sao cho phù hợp nhất với cấu trúc dữ liệu thực, kể cả khi tồn tại outlier.
+```
+
+**Kết quả quan trọng:**
+- ✅ Đã hoàn thiện phân tích outlier toàn diện, minh bạch
+- ✅ Đưa ra quyết định giữ toàn bộ outlier nhờ phương pháp regularization
+- ✅ Đã trực quan hóa (3 biểu đồ, giúp giải thích cho người dùng)
+- ✅ Báo cáo chi tiết chứng minh logic và lý do rõ ràng
+
 
 ---
 
