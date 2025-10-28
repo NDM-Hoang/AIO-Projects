@@ -141,11 +141,11 @@ Kết quả: Logic consistency ✓
 └─ Ngăn chặn data leakage ✓
 ```
 
-**Thành tựu chính:**
-✅ 24 features có skewness giảm
-✅ Target nearly symmetric (skewness ≈ 0.2)
-✅ Cross-fit ngăn chặn leakage
-✅ Tất cả transformations có thể tái lập
+**Kết quả nổi bật:**
+✅ Đã xử lý skewness cho 24 biến đầu vào
+✅ Biến mục tiêu phân phối gần đối xứng (skewness xấp xỉ 0.2)
+✅ Chiến lược cross-fit đảm bảo không rò rỉ dữ liệu huấn luyện
+✅ Quá trình biến đổi luôn có thể thực hiện lại được dễ dàng
 
 ### 4. ENCODING (✅ HOÀN THÀNH)
 
