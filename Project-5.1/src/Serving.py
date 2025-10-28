@@ -114,34 +114,34 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
           .get_dataframe()
     )
 
-    # Save temporary single-row CSVs for downstream modules expecting file IO
-    tmp_train_fe = DATA_PROCESSED / "_tmp_train_fe.csv"
+    # Save temporary single-row CSV for downstream modules expecting file IO
     tmp_test_fe = DATA_PROCESSED / "_tmp_test_fe.csv"
-    # Use the same row for both train/test shapes
-    df_fe.to_csv(tmp_train_fe, index=False)
     df_fe.to_csv(tmp_test_fe, index=False)
 
     # 2) Transformation
     transformer = SkewnessTransformer(
         processed_dir=str(DATA_PROCESSED), interim_dir=str(DATA_INTERIM)
     )
-    transformer.run_pipeline(
-        train_path=str(tmp_train_fe), test_path=str(tmp_test_fe)
-    )
+    # Fit on full training FE data, apply to single-row test FE
+    train_fe_path = DATA_PROCESSED / "train_fe.csv"
+    if not train_fe_path.exists():
+        raise FileNotFoundError("Missing train_fe.csv. Run pipeline first (preprocess→fe→transform→encode).")
+    transformer.run_pipeline(train_path=str(train_fe_path), test_path=str(tmp_test_fe))
 
-    tmp_train_trans = DATA_PROCESSED / "train_transformed.csv"
     tmp_test_trans = DATA_PROCESSED / "test_transformed.csv"
 
     # 3) Encoding
     encoder = CategoricalEncoder(
         processed_dir=str(DATA_PROCESSED), interim_dir=str(DATA_INTERIM)
     )
-    encoder.run_pipeline(
-        train_path=str(tmp_train_trans), test_path=str(tmp_test_trans)
-    )
+    # Fit on full training transformed data, apply to single-row transformed test
+    train_transformed_path = DATA_PROCESSED / "train_transformed.csv"
+    if not train_transformed_path.exists():
+        raise FileNotFoundError("Missing train_transformed.csv. Run pipeline first (transform step).")
+    encoder.run_pipeline(train_path=str(train_transformed_path), test_path=str(tmp_test_trans))
 
-    # Load encoded single-row (use train path)
-    encoded = pd.read_csv(DATA_PROCESSED / "train_encoded.csv")
+    # Load encoded single-row from test output
+    encoded = pd.read_csv(DATA_PROCESSED / "test_encoded.csv")
     return encoded
 
 
