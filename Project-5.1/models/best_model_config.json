@@ -1,13 +1,18 @@
 {
-  "best_model": "Lasso",
+  "best_model": "XGBoost",
   "best_params": {
-    "alpha": 0.01
+    "subsample": 0.9,
+    "min_child_weight": 3,
+    "max_depth": 3,
+    "learning_rate": 0.1,
+    "gamma": 0,
+    "colsample_bytree": 0.8
   },
   "performance": {
-    "RMSE": 0.12643387865640762,
-    "MAE": 0.08631960399465796,
-    "R\u00b2": 0.9035344004887497,
-    "CV_Score": 0.020085662270656696
+    "RMSE": 0.12490775407349658,
+    "MAE": 0.08419830801719753,
+    "R\u00b2": 0.9058491284903492,
+    "CV_Score": 0.01751750486471701
   },
   "feature_count": 2,
   "training_samples": 5,

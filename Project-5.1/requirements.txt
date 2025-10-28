@@ -17,6 +17,7 @@ scipy>=1.11.0          # Scientific computing (stats, transforms)
 scikit-learn>=1.3.0    # Preprocessing, encoding, metrics, regularization
 lightgbm>=4.0.0        # Gradient boosting (baseline comparison)
 xgboost>=2.0.0         # Gradient boosting (baseline comparison)
+shap>=0.43.0           # Explainable AI (SHAP values for model interpretability)
 
 # Statistics & Advanced Analysis
 statsmodels>=0.14.0    # Statistical modeling and tests
