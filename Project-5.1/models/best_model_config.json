@@ -1,0 +1,15 @@
+{
+  "best_model": "Lasso",
+  "best_params": {
+    "alpha": 0.01
+  },
+  "performance": {
+    "RMSE": 0.12643387865640762,
+    "MAE": 0.08631960399465796,
+    "R\u00b2": 0.9035344004887497,
+    "CV_Score": 0.020085662270656696
+  },
+  "feature_count": 2,
+  "training_samples": 5,
+  "test_samples": 5
+}

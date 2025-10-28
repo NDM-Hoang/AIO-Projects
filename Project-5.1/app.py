@@ -250,27 +250,110 @@ class Pipeline:
             return False
 
     def run_modeling(self):
-        """STEP 5: Modeling (Placeholder)"""
+        """STEP 5: Modeling - Train and evaluate models"""
         print("\n" + "=" * 100)
-        print("STEP 5: MODELING (Placeholder)")
+        print("STEP 5: MODELING - Train & Evaluate Models")
         print("=" * 100)
 
-        print("""
-🔄 Modeling step is a placeholder for future development.
+        try:
+            from src.Modeling import ModelTrainer
+            import joblib
+            from sklearn.linear_model import Ridge, Lasso, ElasticNet
+            
+            # Load encoded data
+            train_path = self.processed_dir / 'train_encoded.csv'
+            test_path = self.processed_dir / 'test_encoded.csv'
 
-Expected features:
-- Load train_encoded.csv from data/processed/
-- Implement K-Fold Cross-Validation
-- Train multiple models (LightGBM, Ridge, Lasso, XGBoost)
-- Apply regularization (L1/L2)
-- Evaluate and save best model to models/
-- Generate predictions on test set
+            if not train_path.exists() or not test_path.exists():
+                print("❌ Encoded data not found. Run encoding first.")
+                return False
 
-Status: ⏳ TO DO
-        """)
-        return True
+            print(f"\n📊 Loading encoded data...")
+            train_df = pd.read_csv(train_path)
+            test_df = pd.read_csv(test_path)
+            
+            print(f"  Train: {train_df.shape}")
+            print(f"  Test: {test_df.shape}")
+            
+            # Separate features and target
+            X_train = train_df.drop('SalePrice', axis=1)
+            y_train = train_df['SalePrice']
+            X_test = test_df.drop('SalePrice', axis=1)
+            y_test = test_df['SalePrice']
+            
+            print(f"  Features: {X_train.shape[1]}")
+            print(f"  Target: SalePrice (log-transformed)")
+            
+            # Initialize ModelTrainer
+            print(f"\n🤖 Initializing ModelTrainer...")
+            trainer = ModelTrainer(models_dir=str(self.models_dir))
+            
+            # Train all models
+            print(f"\n🚀 Training all models...")
+            results_df = trainer.train_all_models(X_train, y_train, X_test, y_test)
+            
+            # Save results
+            print(f"\n💾 Saving results...")
+            trainer.save_results(results_df)
+            
+            # Generate report
+            print(f"\n📋 Generating report...")
+            report = trainer.generate_report(results_df)
+            
+            # Save report
+            report_path = Path('reports') / 'ModelReport.md'
+            report_path.parent.mkdir(exist_ok=True)
+            with open(report_path, 'w', encoding='utf-8') as f:
+                f.write(report)
+            
+            print(f"\n✅ Modeling complete!")
+            print(f"  Best model: {trainer.best_model_name}")
+            print(f"  RMSE: {trainer.best_model_info['RMSE']:.4f}")
+            print(f"  R²: {trainer.best_model_info['R²']:.4f}")
+            print(f"  Results saved to: {self.models_dir}")
+            print(f"  Report saved to: {report_path}")
 
-    def run_pipeline(self, steps=['preprocess', 'fe', 'transform', 'encode']):
+            # Persist best model artifact for serving
+            try:
+                best_name = trainer.best_model_name
+                best_params = trainer.best_model_info.get('Best_Params', {})
+
+                model_mapping = {
+                    'Ridge': Ridge,
+                    'Lasso': Lasso,
+                    'ElasticNet': ElasticNet,
+                }
+
+                if best_name in model_mapping:
+                    print(f"\n💾 Re-fitting best model ({best_name}) with best params for persistence...")
+                    BestModelClass = model_mapping[best_name]
+                    best_model = BestModelClass(**best_params)
+                    best_model.fit(X_train, y_train)
+
+                    model_path = self.models_dir / 'best_model.pkl'
+                    joblib.dump(best_model, model_path)
+
+                    features_path = self.models_dir / 'best_model_features.json'
+                    import json
+                    with open(features_path, 'w') as f:
+                        json.dump(list(X_train.columns), f, indent=2)
+
+                    print(f"  ✓ Saved best model to: {model_path}")
+                    print(f"  ✓ Saved feature names to: {features_path}")
+                else:
+                    print("⚠️ Best model is not a supported linear model for persistence. Skipping save.")
+            except Exception as persist_err:
+                print(f"\n⚠️ Failed to persist best model: {persist_err}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"\n❌ Error in modeling: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def run_pipeline(self, steps=['preprocess', 'fe', 'transform', 'encode', 'model']):
         """Run specified pipeline steps"""
 
         print("\n" + "=" * 100)
@@ -330,7 +413,7 @@ def main():
 
     # Map step to pipeline steps
     step_map = {
-        'all': ['preprocess', 'fe', 'transform', 'encode'],
+        'all': ['preprocess', 'fe', 'transform', 'encode', 'model'],
         'preprocess': ['preprocess'],
         'fe': ['preprocess', 'fe'],
         'transform': ['preprocess', 'fe', 'transform'],
