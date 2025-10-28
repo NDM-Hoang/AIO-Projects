@@ -1,7 +1,7 @@
 # I. Giới thiệu:
 
 Bạn đã bao giờ tự hỏi: **"Tại sao căn nhà này lại đắt gấp 4 lần căn kia?"**
-Trong project này, tôi không chỉ build một model dự báo giá nhà. Tôi xây dựng một **production-ready pipeline** từ A-Z, với focus vào:
+Trong project này, bọn mình không chỉ build một model dự báo giá nhà. Bọn mình xây dựng một **production-ready pipeline** từ A-Z, với focus vào:
 
 - 🎯 **Data Quality:** Không bỏ qua một null value, một logical error nào
 - 🔒 **Zero Leakage:** Early split + cross-fit encoding đúng chuẩn
