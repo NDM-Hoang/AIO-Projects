@@ -8,7 +8,7 @@ processing pipeline, and generate predictions using the persisted best model.
 
 import json
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any, List
 
 import joblib
 import numpy as np
@@ -21,7 +21,7 @@ DATA_INTERIM = PROJECT_ROOT / "data" / "interim"
 MODELS_DIR = PROJECT_ROOT / "models"
 
 
-def load_artifacts() -> Tuple[object, list, dict, pd.Series]:
+def load_artifacts() -> Tuple[Any, List[str], Dict[str, Any], Dict[str, Any]]:
     """Load persisted model, feature names, configs, and default values.
 
     Returns:
@@ -53,7 +53,15 @@ def load_artifacts() -> Tuple[object, list, dict, pd.Series]:
     if not train_raw_path.exists():
         raise FileNotFoundError("Missing processed train_data.csv. Run pipeline first.")
     train_df = pd.read_csv(train_raw_path)
-    defaults = train_df.drop(columns=["SalePrice"]).median(numeric_only=True)
+    defaults_series = train_df.drop(columns=["SalePrice"]).median(numeric_only=True)
+    defaults: Dict[str, Any] = {}
+    if hasattr(defaults_series, 'to_dict'):
+        defaults = defaults_series.to_dict()
+    else:
+        # Fallback if defaults_series is not a Series
+        for col in train_df.select_dtypes(include=[np.number]).columns:
+            if col != "SalePrice":
+                defaults[col] = train_df[col].median()
     # For categorical defaults, use mode
     for col in train_df.select_dtypes(include=["object"]).columns:
         if col == "SalePrice":
@@ -63,7 +71,7 @@ def load_artifacts() -> Tuple[object, list, dict, pd.Series]:
     return model, feature_names, transform_config, defaults
 
 
-def prepare_single_record(raw_input: Dict, defaults: pd.Series) -> pd.DataFrame:
+def prepare_single_record(raw_input: Dict[str, Any], defaults: Dict[str, Any]) -> pd.DataFrame:
     """Build a one-row raw dataframe (close to original columns) with defaults.
 
     Any missing keys are filled from defaults. Extra keys are ignored.
@@ -78,7 +86,11 @@ def prepare_single_record(raw_input: Dict, defaults: pd.Series) -> pd.DataFrame:
         if col in raw_input and raw_input[col] is not None:
             filled[col] = raw_input[col]
         else:
-            filled[col] = defaults.get(col, 0)
+            # Use appropriate default based on column type
+            if col in train_df.select_dtypes(include=["object"]).columns:
+                filled[col] = defaults.get(col, "None")
+            else:
+                filled[col] = defaults.get(col, 0)
 
     df_one = pd.DataFrame([filled], columns=raw_cols)
     return df_one
@@ -93,15 +105,24 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
     """
     from src.FeatureEngineering import FeatureEngineer
     from src.Transformation import SkewnessTransformer
-    from src.Encoding import CategoricalEncoder
+    from src.Encoding import SklearnEncodingPipeline
 
     # Start from a copy
     df = df_raw_one_row.copy()
+    
+    # Ensure all categorical columns have proper string values
+    categorical_cols = df.select_dtypes(include=['object']).columns
+    for col in categorical_cols:
+        if col in df.columns:
+            # Replace any non-string values with "None"
+            df[col] = df[col].astype(str)
+            df[col] = df[col].replace(['nan', 'None', 'null'], 'None')
+    
     # We need a dummy target to satisfy downstream code; use median SalePrice
     # It will be dropped by scaler split inside Encoding
     train_raw_path = DATA_PROCESSED / "train_data.csv"
     train_df = pd.read_csv(train_raw_path)
-    df["SalePrice"] = train_df["SalePrice"].median()
+    df["SalePrice"] = float(train_df["SalePrice"].median())
 
     # 1) Feature Engineering
     fe = FeatureEngineer(df)
@@ -130,15 +151,27 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
 
     tmp_test_trans = DATA_PROCESSED / "test_transformed.csv"
 
-    # 3) Encoding
-    encoder = CategoricalEncoder(
-        processed_dir=str(DATA_PROCESSED), interim_dir=str(DATA_INTERIM)
-    )
-    # Fit on full training transformed data, apply to single-row transformed test
+    # 3) Encoding (updated to use SklearnEncodingPipeline)
     train_transformed_path = DATA_PROCESSED / "train_transformed.csv"
     if not train_transformed_path.exists():
         raise FileNotFoundError("Missing train_transformed.csv. Run pipeline first (transform step).")
-    encoder.run_pipeline(train_path=str(train_transformed_path), test_path=str(tmp_test_trans))
+
+    enc = SklearnEncodingPipeline()
+    train_encoded_df, test_encoded_df = enc.fit_transform(
+        train_path=str(train_transformed_path),
+        test_path=str(tmp_test_trans),
+    )
+
+    # Persist outputs to expected locations so downstream code can read them
+    enc.save(
+        train_encoded=train_encoded_df,
+        test_encoded=test_encoded_df,
+        processed_dir=str(DATA_PROCESSED),
+        interim_dir=str(DATA_INTERIM),
+        train_output="train_encoded.csv",
+        test_output="test_encoded.csv",
+        config_output="encoding_config.json",
+    )
 
     # Load encoded single-row from test output
     encoded = pd.read_csv(DATA_PROCESSED / "test_encoded.csv")

@@ -6,9 +6,9 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Ensure src is importable
+# Ensure src package is importable for intra-module imports like `from src.FeatureEngineering ...`
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
 
 from src.Serving import load_artifacts, prepare_single_record, predict_single, run_full_processing  # noqa: E402
 from src.Explainability import load_explainer_from_artifacts, SHAP_AVAILABLE  # noqa: E402
@@ -49,42 +49,42 @@ def page_predict():
         with col1:
             MSZoning = st.selectbox("MSZoning", ["RL", "RM", "FV", "RH", "C (all)"])
             Neighborhood = st.text_input("Neighborhood", value="NAmes")
-            LotArea = st.number_input("LotArea", min_value=0, value=int(defaults.get("LotArea", 8450)))
+            LotArea = st.number_input("LotArea", min_value=0, value=int(defaults.get("LotArea", 8450) or 8450))
         with col2:
-            LotFrontage = st.number_input("LotFrontage", min_value=0, value=int(defaults.get("LotFrontage", 65)))
+            LotFrontage = st.number_input("LotFrontage", min_value=0, value=int(defaults.get("LotFrontage", 65) or 65))
             LotShape = st.selectbox("LotShape", ["Reg", "IR1", "IR2", "IR3"]) 
             LandContour = st.selectbox("LandContour", ["Lvl", "Bnk", "HLS", "Low"]) 
         with col3:
-            OverallQual = st.slider("OverallQual", 1, 10, int(defaults.get("OverallQual", 5)))
-            OverallCond = st.slider("OverallCond", 1, 10, int(defaults.get("OverallCond", 5)))
+            OverallQual = st.slider("OverallQual", 1, 10, int(defaults.get("OverallQual", 5) or 5))
+            OverallCond = st.slider("OverallCond", 1, 10, int(defaults.get("OverallCond", 5) or 5))
 
         st.subheader("Area & Rooms")
         col4, col5, col6 = st.columns(3)
         with col4:
-            GrLivArea = st.number_input("GrLivArea", min_value=0, value=int(defaults.get("GrLivArea", 1460)))
-            TotRmsAbvGrd = st.number_input("TotRmsAbvGrd", min_value=0, value=int(defaults.get("TotRmsAbvGrd", 6)))
+            GrLivArea = st.number_input("GrLivArea", min_value=0, value=int(defaults.get("GrLivArea", 1460) or 1460))
+            TotRmsAbvGrd = st.number_input("TotRmsAbvGrd", min_value=0, value=int(defaults.get("TotRmsAbvGrd", 6) or 6))
         with col5:
-            BedroomAbvGr = st.number_input("BedroomAbvGr", min_value=0, value=int(defaults.get("BedroomAbvGr", 3)))
-            FullBath = st.number_input("FullBath", min_value=0, value=int(defaults.get("FullBath", 2)))
+            BedroomAbvGr = st.number_input("BedroomAbvGr", min_value=0, value=int(defaults.get("BedroomAbvGr", 3) or 3))
+            FullBath = st.number_input("FullBath", min_value=0, value=int(defaults.get("FullBath", 2) or 2))
         with col6:
-            HalfBath = st.number_input("HalfBath", min_value=0, value=int(defaults.get("HalfBath", 1)))
-            KitchenAbvGr = st.number_input("KitchenAbvGr", min_value=0, value=int(defaults.get("KitchenAbvGr", 1)))
+            HalfBath = st.number_input("HalfBath", min_value=0, value=int(defaults.get("HalfBath", 1) or 1))
+            KitchenAbvGr = st.number_input("KitchenAbvGr", min_value=0, value=int(defaults.get("KitchenAbvGr", 1) or 1))
 
         st.subheader("Basement")
         col7, col8 = st.columns(2)
         with col7:
-            TotalBsmtSF = st.number_input("TotalBsmtSF", min_value=0, value=int(defaults.get("TotalBsmtSF", 856)))
+            TotalBsmtSF = st.number_input("TotalBsmtSF", min_value=0, value=int(defaults.get("TotalBsmtSF", 856) or 856))
         with col8:
-            FirstFlrSF = st.number_input("1stFlrSF", min_value=0, value=int(defaults.get("1stFlrSF", 856)))
+            FirstFlrSF = st.number_input("1stFlrSF", min_value=0, value=int(defaults.get("1stFlrSF", 856) or 856))
 
         st.subheader("Garage")
         col9, col10, col11 = st.columns(3)
         with col9:
-            GarageArea = st.number_input("GarageArea", min_value=0, value=int(defaults.get("GarageArea", 548)))
+            GarageArea = st.number_input("GarageArea", min_value=0, value=int(defaults.get("GarageArea", 548) or 548))
         with col10:
-            GarageCars = st.number_input("GarageCars", min_value=0, value=int(defaults.get("GarageCars", 2)))
+            GarageCars = st.number_input("GarageCars", min_value=0, value=int(defaults.get("GarageCars", 2) or 2))
         with col11:
-            GarageYrBlt = st.number_input("GarageYrBlt", min_value=1800, max_value=2050, value=int(defaults.get("GarageYrBlt", 2000)))
+            GarageYrBlt = st.number_input("GarageYrBlt", min_value=1800, max_value=2050, value=int(defaults.get("GarageYrBlt", 2000) or 2000))
 
         st.subheader("Quality (Ordinal)")
         col12, col13, col14 = st.columns(3)
@@ -156,6 +156,9 @@ def page_predict():
                                 if col not in X_instance.columns:
                                     X_instance[col] = 0.0
                             X_instance = X_instance[feature_names]
+                            # Ensure X_instance is a DataFrame, not Series
+                            if isinstance(X_instance, pd.Series):
+                                X_instance = X_instance.to_frame().T
                             
                             # Get explanation
                             explanation = explainer.explain_prediction(X_instance)
@@ -212,6 +215,9 @@ def page_predict():
                     st.write({k: v for k, v in result.items()})
             except Exception as e:
                 st.error(str(e))
+                import traceback
+                with st.expander("Chi tiết lỗi"):
+                    st.code(traceback.format_exc())
 
 
 def page_model_info():
@@ -272,7 +278,7 @@ def page_explain():
     top_features = importance_df.head(max_features)
     
     ax.barh(range(len(top_features)), top_features['importance_abs'], 
-            color=plt.cm.viridis(np.linspace(0, 1, len(top_features))))
+            color=plt.cm.get_cmap('viridis')(np.linspace(0, 1, len(top_features))))
     ax.set_yticks(range(len(top_features)))
     ax.set_yticklabels(top_features['feature'], fontsize=10)
     ax.set_xlabel('Mean Absolute SHAP Value (Importance)', fontsize=11, fontweight='bold')
@@ -286,7 +292,6 @@ def page_explain():
     st.subheader("📋 Bảng Feature Importance")
     display_df = importance_df[['feature', 'importance', 'importance_abs']].copy()
     display_df.columns = ['Feature', 'Mean SHAP Value', 'Importance (Absolute)']
-    display_df = display_df.sort_values('Importance (Absolute)', ascending=False)
     st.dataframe(display_df, use_container_width=True, hide_index=True)
     
     # Summary statistics
