@@ -1,2 +1,9 @@
 /reports
 /data
+__pycache__
+.venv
+.env
+.DS_Store
+.cursor
+.cursorignore
+.cursorignore
