@@ -225,7 +225,7 @@ class Pipeline:
         print("=" * 100)
 
         try:
-            from src.Encoding import CategoricalEncoder
+            from src.Encoding import SklearnEncodingPipeline
 
             train_path = self.processed_dir / 'train_transformed.csv'
             test_path = self.processed_dir / 'test_transformed.csv'
@@ -234,13 +234,21 @@ class Pipeline:
                 print("❌ Transformed data not found. Run transformation first.")
                 return False
 
-            encoder = CategoricalEncoder(
+            encoder = SklearnEncodingPipeline()
+            train_encoded, test_encoded = encoder.fit_transform(
+                train_path=str(train_path),
+                test_path=str(test_path)
+            )
+            encoder.save(
+                train_encoded,
+                test_encoded,
                 processed_dir=str(self.processed_dir),
                 interim_dir=str(self.interim_dir)
             )
-            encoder.run_pipeline(train_path=str(train_path), test_path=str(test_path))
             
             print("\n✓ Encoding complete")
+            print(f"  Train: {train_encoded.shape}")
+            print(f"  Test: {test_encoded.shape}")
             return True
 
         except Exception as e:
@@ -403,15 +411,24 @@ class Pipeline:
 
 
 def main():
+    # --- Argument parser: Lấy tham số command line ---
     parser = argparse.ArgumentParser(description='House Price Prediction Pipeline')
-    parser.add_argument('--step', choices=['all', 'preprocess', 'fe', 'transform', 'encode', 'model'],
-                        default='all', help='Pipeline step to run')
-    parser.add_argument('--raw-data', default='data/raw/train-house-prices-advanced-regression-techniques.csv',
-                        help='Path to raw data')
+    parser.add_argument(
+        '--step',
+        choices=['all', 'preprocess', 'fe', 'transform', 'encode', 'model'],
+        default='all',
+        help='Pipeline step to run (chọn bước nào để chạy: all, preprocess, fe, transform, encode, model)'
+    )
+    parser.add_argument(
+        '--raw-data',
+        default='data/raw/train-house-prices-advanced-regression-techniques.csv',
+        help='Path to raw data (đường dẫn đến file dữ liệu gốc)'
+    )
 
     args = parser.parse_args()
 
-    # Map step to pipeline steps
+    # --- Mapping bước command line sang các bước thực tế của pipeline ---
+    # (VD: 'all' = chạy toàn bộ, 'fe' = preprocess + feature engineering, ...)
     step_map = {
         'all': ['preprocess', 'fe', 'transform', 'encode', 'model'],
         'preprocess': ['preprocess'],
@@ -421,9 +438,11 @@ def main():
         'model': ['preprocess', 'fe', 'transform', 'encode', 'model'],
     }
 
+    # --- Khởi tạo và chạy pipeline ---
     pipeline = Pipeline(raw_data_path=args.raw_data)
     success = pipeline.run_pipeline(steps=step_map[args.step])
 
+    # --- Exit code: 0 (thành công), 1 (thất bại) ---
     sys.exit(0 if success else 1)
 
 

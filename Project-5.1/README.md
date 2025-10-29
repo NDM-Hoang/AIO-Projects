@@ -12,7 +12,7 @@ Dự án này triển khai pipeline ML toàn diện data "House Prices: Advanced
 - ✅ **Cross-fit strategy** cho mọi transformations (fit on train, apply on test)
 - ✅ **Outlier detection** toàn diện với quyết định data-driven (giữ tất cả outliers)
 - ✅ **Modular pipeline** với error handling và progress tracking chi tiết
-- ✅ **Báo cáo chi tiết** bằng tiếng Việt
+- ✅ **Báo cáo chi tiết** bằng cả tiếng Việt và tiếng Anh với visualizations
 - ✅ **Sẵn sàng cho modeling** với Ridge/Lasso/ElasticNet regression
 
 **📈 Kết Quả Processing:**
@@ -60,9 +60,10 @@ Project-5.1/
 │   ├── baseline.ipynb              # Initial EDA & baseline model
 │   └── Processing.ipynb            # Detailed processing analysis
 │
-└── reports/                        # 📋 Analysis & documentation
-    └── ProcessReport.md            # 📄 Comprehensive progress report (Tiếng Việt)
-
+├── reports/                        # 📋 Analysis & documentation
+│   └── ProcessReport.md            # 📄 Comprehensive progress report (Tiếng Việt)
+│
+└── __pycache__/                    # 🐍 Python bytecode cache
 ```
 
 ## 🎯 Dữ Liệu Sẵn Sàng Cho Modeling
@@ -508,43 +509,6 @@ This project demonstrates a **complete machine learning pipeline** for house pri
 - ✅ **Modular, maintainable code** (separate modules for each step)
 
 **🚀 Ready to proceed to modeling phase with Ridge/Lasso/ElasticNet regression!**
-
----
-
-## 📋 Getting Started
-
-### 1. Clone & Setup
-```bash
-git clone <repository-url>
-cd Project-5.1
-pip install -r requirements.txt
-```
-
-### 2. Data Preparation
-```bash
-# Ensure raw data is in place
-ls data/raw/train-house-prices-advanced-regression-techniques.csv
-
-# Run complete preprocessing pipeline
-python app.py --step all
-```
-
-### 3. Verify Results
-```bash
-# Check final datasets
-ls -lh data/processed/train_encoded.csv data/processed/test_encoded.csv
-
-# View comprehensive report
-cat reports/ProcessReport.md
-```
-
-### 4. Next Steps
-```bash
-# Ready for modeling phase
-echo "✅ Preprocessing complete - ready for Ridge/Lasso/ElasticNet"
-echo "📊 Data: $(wc -l < data/processed/train_encoded.csv) rows ready"
-echo "🎯 Features: $(($(head -1 data/processed/train_encoded.csv | tr ',' '\n' | wc -l) - 1)) features"
-```
 
 ---
 **Status:** ✅ **All preprocessing phases complete - Ready for modeling**
