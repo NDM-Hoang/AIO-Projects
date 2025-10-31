@@ -1,20 +1,20 @@
 {
-  "best_model": "XGBoost",
+  "best_model": "LightGBM",
   "best_params": {
     "subsample": 0.9,
-    "min_child_weight": 3,
+    "num_leaves": 200,
+    "min_child_samples": 20,
     "max_depth": 3,
     "learning_rate": 0.1,
-    "gamma": 0,
     "colsample_bytree": 0.8
   },
   "performance": {
-    "RMSE": 0.12490775407349658,
-    "MAE": 0.08419830801719753,
-    "R\u00b2": 0.9058491284903492,
-    "CV_Score": 0.01751750486471701
+    "RMSE": 0.12492268339227139,
+    "MAE": 0.08385765774842951,
+    "R\u00b2": 0.9058266208024124,
+    "CV_Score": 0.017683141503138884
   },
   "feature_count": 2,
-  "training_samples": 5,
-  "test_samples": 5
+  "training_samples": 6,
+  "test_samples": 6
 }

@@ -324,17 +324,64 @@ class Pipeline:
             # Persist best model artifact for serving
             try:
                 best_name = trainer.best_model_name
-                best_params = trainer.best_model_info.get('Best_Params', {})
+                best_params_raw = trainer.best_model_info.get('Best_Params', {})
+                
+                # Handle Best_Params which might be a string (from CSV) or dict
+                import json
+                import ast
+                if isinstance(best_params_raw, str):
+                    try:
+                        # Safely parse string representation of dict
+                        best_params = ast.literal_eval(best_params_raw) if best_params_raw.startswith('{') else {}
+                    except:
+                        best_params = {}
+                else:
+                    best_params = best_params_raw
 
-                model_mapping = {
-                    'Ridge': Ridge,
-                    'Lasso': Lasso,
-                    'ElasticNet': ElasticNet,
-                }
+                # Build comprehensive model mapping
+                model_mapping = {}
+                
+                # Linear models
+                model_mapping['Ridge'] = Ridge
+                model_mapping['Lasso'] = Lasso
+                model_mapping['ElasticNet'] = ElasticNet
+                
+                # Tree-based models
+                try:
+                    import lightgbm as lgb
+                    model_mapping['LightGBM'] = lgb.LGBMRegressor
+                except ImportError:
+                    pass
+                
+                try:
+                    import xgboost as xgb
+                    model_mapping['XGBoost'] = xgb.XGBRegressor
+                except ImportError:
+                    pass
+                
+                # Huber
+                try:
+                    from sklearn.linear_model import HuberRegressor
+                    model_mapping['Huber'] = HuberRegressor
+                except ImportError:
+                    pass
 
                 if best_name in model_mapping:
                     print(f"\n💾 Re-fitting best model ({best_name}) with best params for persistence...")
                     BestModelClass = model_mapping[best_name]
+                    
+                    # Set default params for tree-based models
+                    if best_name in ['LightGBM', 'XGBoost']:
+                        default_params = {'random_state': 42, 'verbosity': 0, 'verbose': -1}
+                        if best_name == 'LightGBM':
+                            default_params['verbose'] = -1
+                        elif best_name == 'XGBoost':
+                            default_params['verbosity'] = 0
+                        best_params = {**default_params, **best_params}
+                    elif best_name in ['Ridge', 'Lasso', 'ElasticNet']:
+                        if 'random_state' not in best_params:
+                            best_params['random_state'] = 42
+                    
                     best_model = BestModelClass(**best_params)
                     best_model.fit(X_train, y_train)
 
@@ -342,16 +389,18 @@ class Pipeline:
                     joblib.dump(best_model, model_path)
 
                     features_path = self.models_dir / 'best_model_features.json'
-                    import json
                     with open(features_path, 'w') as f:
                         json.dump(list(X_train.columns), f, indent=2)
 
-                    print(f"  ✓ Saved best model to: {model_path}")
+                    print(f"  ✓ Saved best model ({best_name}) to: {model_path}")
                     print(f"  ✓ Saved feature names to: {features_path}")
                 else:
-                    print("⚠️ Best model is not a supported linear model for persistence. Skipping save.")
+                    print(f"⚠️ Best model '{best_name}' is not in supported models list.")
+                    print(f"   Supported models: {', '.join(model_mapping.keys())}")
             except Exception as persist_err:
+                import traceback
                 print(f"\n⚠️ Failed to persist best model: {persist_err}")
+                traceback.print_exc()
             
             return True
             
