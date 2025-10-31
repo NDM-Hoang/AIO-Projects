@@ -61,8 +61,13 @@ def load_model_and_data():
         raise FileNotFoundError(f"Test data not found: {test_path}")
     
     test_df = pd.read_csv(test_path)
-    X_test = test_df[feature_names]
-    y_test = test_df['SalePrice']
+    
+    # Ensure we have the correct features (model might expect specific order)
+    if 'SalePrice' in test_df.columns:
+        X_test = test_df[feature_names]
+        y_test = test_df['SalePrice']
+    else:
+        raise ValueError("SalePrice column not found in test data")
     
     return model, model_name, X_test, y_test, feature_names
 
@@ -110,13 +115,26 @@ def create_residuals_plot(model, X_test, y_test, model_name, save_path):
     
     # 2. Actual vs Predicted Plot
     ax2 = axes[1]
-    ax2.scatter(y_test, y_pred, alpha=0.6, s=30, color='#2ecc71')
+    ax2.scatter(y_test, y_pred, alpha=0.6, s=30, color='#2ecc71', zorder=2)
     
-    # Perfect prediction line
-    min_val = min(y_test.min(), y_pred.min())
-    max_val = max(y_test.max(), y_pred.max())
-    ax2.plot([min_val, max_val], [min_val, max_val], 
-            'r--', linewidth=2, label='Perfect Prediction')
+    # Perfect prediction line: y = x (diagonal line)
+    # Calculate the range that includes both actual and predicted values
+    all_values = np.concatenate([y_test.values if hasattr(y_test, 'values') else y_test, 
+                                  y_pred if isinstance(y_pred, np.ndarray) else np.array(y_pred)])
+    min_val = np.min(all_values)
+    max_val = np.max(all_values)
+    
+    # Add a small margin for better visualization
+    margin = (max_val - min_val) * 0.05
+    line_min = min_val - margin
+    line_max = max_val + margin
+    
+    # Draw the perfect prediction line (y = x) - this should be a 45-degree diagonal
+    ax2.plot([line_min, line_max], [line_min, line_max], 
+            'r--', linewidth=2, label='Perfect Prediction (y=x)', zorder=1)
+    
+    # Set equal aspect ratio and same limits for both axes to ensure 45-degree line
+    ax2.set_aspect('equal', adjustable='box')
     
     ax2.set_xlabel('Actual Values (log scale)', fontsize=11, fontweight='bold')
     ax2.set_ylabel('Predicted Values (log scale)', fontsize=11, fontweight='bold')

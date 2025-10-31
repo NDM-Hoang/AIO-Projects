@@ -1149,16 +1149,28 @@ Biểu đồ này hiển thị 6 góc nhìn khác nhau:
 
 ![Model Residuals and Predictions](models/model_residuals.png)
 
-**Giải thích:**
+**Giải thích chi tiết:**
 
 - **Bên trái (Residuals Plot)**:
 
-  - ✅ Points phân bố **ngẫu nhiên** quanh 0 → Model không bias
-  - ✅ Không có pattern rõ ràng → Model không thiếu features
+  - **Trục X**: Predicted Values (giá dự đoán, log scale)
+  - **Trục Y**: Residuals = Actual - Predicted (sai số)
+  - **Đường đỏ nét đứt**: Perfect prediction line (residual = 0)
+  - **Điểm xanh dương**: Mỗi điểm = một căn nhà trong test set
+  - ✅ **Cách đọc**:
+    - Points phân bố **ngẫu nhiên** quanh đường đỏ (y=0) → Model không bias
+    - Không có pattern rõ ràng (funnel, curve) → Model không thiếu features, homoscedasticity tốt
+    - RMSE được hiển thị ở góc trên trái
 
 - **Bên phải (Actual vs Predicted)**:
-  - ✅ Points nằm **gần đường đỏ** (perfect prediction) → Model dự đoán chính xác
-  - ✅ Points phân bố **đều 2 bên** → Model không bias
+  - **Trục X**: Actual Values (giá thực tế, log scale)
+  - **Trục Y**: Predicted Values (giá dự đoán, log scale)
+  - **Đường đỏ nét đứt**: Perfect prediction line (actual = predicted)
+  - **Điểm xanh lá**: Mỗi điểm = một căn nhà trong test set
+  - ✅ **Cách đọc**:
+    - Points nằm **gần đường đỏ** → Model dự đoán chính xác
+    - Points phân bố **đều 2 bên đường đỏ** → Model không bias (không có xu hướng dự đoán cao/thấp)
+    - R² được hiển thị ở góc trên trái (càng gần 1.0 càng tốt)
 
 **Feature Importance Plot:**
 
