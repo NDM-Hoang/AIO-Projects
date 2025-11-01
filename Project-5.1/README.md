@@ -510,6 +510,30 @@ pip install -r requirements.txt
 python app.py --step all
 ```
 
+### 🔧 Development Setup
+
+```bash
+# Install development dependencies (includes pre-commit)
+pip install -r requirements.txt
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run pre-commit on all files (first time setup)
+pre-commit run --all-files
+
+# Optional: Update hooks to latest versions
+pre-commit autoupdate
+```
+
+**Pre-commit Features:**
+- ✅ **Black** - Code formatting (88 char line length)
+- ✅ **isort** - Import sorting (black profile)
+- ✅ **flake8** - Code linting
+- ✅ **mypy** - Type checking (optional)
+- ✅ **General checks** - Trailing whitespace, YAML/JSON validation
+- ✅ **Jupyter support** - nbQA for notebook formatting/linting
+
 ### 📚 Core Libraries Used
 
 **Data Processing & ML:**

@@ -39,7 +39,10 @@ python-dotenv>=1.0.0   # Environment variable management
 # Development & Testing
 pytest>=7.4.0          # Unit testing framework
 black>=23.7.0          # Code formatter
+isort>=5.13.0         # Import sorter
 flake8>=6.0.0          # Code linter
+pre-commit>=3.5.0      # Pre-commit hooks
+mypy>=1.8.0           # Type checker
 
 # ==============================================================================
 # INSTALLATION NOTES:

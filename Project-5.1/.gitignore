@@ -1,9 +1,88 @@
+# ==============================================================================
+# GITIGNORE - Python Data Science Project
+# ==============================================================================
+
+# Project specific
 /reports
 /data
-__pycache__
+/models/*.pkl
+/models/*.joblib
+!models/best_model_config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv
-.env
-.DS_Store
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 .cursor
 .cursorignore
 .cursorignore
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Pre-commit
+.pre-commit-config.yaml.bak
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentation
+docs/_build/
+
+# ML specific
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+*.model
+*.weights
+checkpoints/
