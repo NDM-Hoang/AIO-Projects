@@ -9,33 +9,37 @@
 # ==============================================================================
 
 # Core Data Processing
-pandas==2.0.3          # Data manipulation and analysis
-numpy==1.24.3          # Numerical computing
-scipy==1.11.2          # Scientific computing (stats, transforms)
+pandas>=2.0.0          # Data manipulation and analysis
+numpy>=1.24.0          # Numerical computing
+scipy>=1.11.0          # Scientific computing (stats, transforms)
 
 # Machine Learning & Modeling
-scikit-learn==1.3.0    # Preprocessing, encoding, metrics, regularization
-lightgbm==4.0.0        # Gradient boosting (baseline comparison)
-xgboost==2.0.0         # Gradient boosting (baseline comparison)
+scikit-learn>=1.3.0    # Preprocessing, encoding, metrics, regularization
+lightgbm>=4.0.0        # Gradient boosting (baseline comparison)
+xgboost>=2.0.0         # Gradient boosting (baseline comparison)
+shap>=0.43.0           # Explainable AI (SHAP values for model interpretability)
 
 # Statistics & Advanced Analysis
-statsmodels==0.14.0    # Statistical modeling and tests
+statsmodels>=0.14.0    # Statistical modeling and tests
 
 # Visualization (Development & Analysis)
-matplotlib==3.7.2      # Plotting and visualization
-seaborn==0.12.2        # Statistical data visualization
+matplotlib>=3.7.0      # Plotting and visualization
+seaborn>=0.12.0        # Statistical data visualization
+
+# App
+streamlit>=1.37.0      # Streamlit UI for demo
 
 # Jupyter Environment (Development)
-jupyter==1.0.0         # Jupyter metapackage
-notebook==7.0.0        # Jupyter notebook
+jupyter>=1.0.0         # Jupyter metapackage
+notebook>=7.0.0        # Jupyter notebook
 
 # Utilities & Environment
-python-dotenv==1.0.0   # Environment variable management
+python-dotenv>=1.0.0   # Environment variable management
 
 # Development & Testing
-pytest==7.4.0          # Unit testing framework
-black==23.7.0          # Code formatter
-flake8==6.0.0          # Code linter
+pytest>=7.4.0          # Unit testing framework
+black>=23.7.0          # Code formatter
+flake8>=6.0.0          # Code linter
 
 # ==============================================================================
 # INSTALLATION NOTES:

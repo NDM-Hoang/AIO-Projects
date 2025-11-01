@@ -206,7 +206,11 @@ class SklearnEncodingPipeline:
         X_train_arr = self.pipeline_.fit_transform(X_train, y_train)
 
         # transform test (TargetEncoder.transform sẽ encode test bằng stats fit trên full train)
-        X_test_arr  = self.pipeline_.transform(X_test)
+
+        # Avoid TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
+        #This was caused by the fact that, at transform time, one of the columns to be transformed had a type float64 as opposed to object - an entire column was NaN.
+        #The solution was to cast the dataframe to object type before invoking transform
+        X_test_arr  = self.pipeline_.transform(X_test.astype("O")) 
 
         # Lấy tên cột sau transform
         pre = self.pipeline_.named_steps['pre']

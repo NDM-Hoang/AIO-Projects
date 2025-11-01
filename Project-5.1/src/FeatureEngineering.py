@@ -36,6 +36,26 @@ class FeatureEngineer:
         self.df = dataframe.copy()
         self.original_cols = dataframe.columns.tolist()
         self.new_features = []
+        
+        # Ensure numeric columns are actually numeric
+        self._ensure_numeric_types()
+    
+    def _ensure_numeric_types(self):
+        """Ensure numeric columns are properly typed and handle NaN values."""
+        # List of columns that should be numeric
+        numeric_cols = [
+            'GarageCars', 'GarageArea', 'GarageYrBlt', 'TotRmsAbvGrd', 'GrLivArea',
+            'TotalBsmtSF', '1stFlrSF', '2ndFlrSF', 'YearBuilt', 'YrSold',
+            'Fireplaces', 'MasVnrArea', 'LotArea', 'LotFrontage', 'OverallQual',
+            'OverallCond', 'BedroomAbvGr', 'FullBath', 'HalfBath', 'KitchenAbvGr'
+        ]
+        
+        for col in numeric_cols:
+            if col in self.df.columns:
+                # Convert to numeric, coercing errors to NaN
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+                # Fill NaN with 0 for safety in calculations
+                self.df[col] = self.df[col].fillna(0)
     
     def engineer_garage_features(self):
         """
@@ -236,7 +256,12 @@ class FeatureEngineer:
         # ===== MASONRY VENEER =====
         print("\n2. MASONRY VENEER FEATURES:")
         
-        self.df['MasVnrArea'] = self.df['MasVnrArea'].fillna(0)
+        # Ensure MasVnrArea is numeric and fill NaN
+        if 'MasVnrArea' in self.df.columns:
+            self.df['MasVnrArea'] = pd.to_numeric(self.df['MasVnrArea'], errors='coerce').fillna(0)
+        else:
+            self.df['MasVnrArea'] = 0
+        
         self.df['HasMasonryVeneer'] = (self.df['MasVnrArea'] > 0).astype(int)
         print(f"   HasMasonryVeneer: {self.df['HasMasonryVeneer'].sum()} samples")
         self.new_features.append('HasMasonryVeneer')

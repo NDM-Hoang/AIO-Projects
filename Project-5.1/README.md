@@ -7,6 +7,7 @@ Pipeline Machine Learning hoàn chỉnh cho dự báo giá nhà sử dụng các
 Dự án này triển khai pipeline ML toàn diện data "House Prices: Advanced Regression Techniques"
 
 **🎯 Thành Tựu Chính:**
+
 - ✅ **177 features** (176 + target) sau preprocessing, feature engineering, transformation, encoding
 - ✅ **Early train/test split (85/15)**: 1239 train / 219 test samples
 - ✅ **Cross-fit strategy** cho mọi transformations (fit on train, apply on test)
@@ -16,6 +17,7 @@ Dự án này triển khai pipeline ML toàn diện data "House Prices: Advanced
 - ✅ **Sẵn sàng cho modeling** với Ridge/Lasso/ElasticNet regression
 
 **📈 Kết Quả Processing:**
+
 - **Input:** 1460 × 81 (raw data, 6940 nulls)
 - **Output:** 1239 × 177 (clean, encoded, scaled, 0 nulls)
 - **Target:** SalePrice (log-transformed, skewness: 2.009 → 0.205)
@@ -68,18 +70,20 @@ Project-5.1/
 
 ## 🎯 Dữ Liệu Sẵn Sàng Cho Modeling
 
-| Dataset | Shape | Features | Status | File |
-|---------|-------|----------|--------|------|
+| Dataset   | Shape          | Features         | Status       | File                               |
+| --------- | -------------- | ---------------- | ------------ | ---------------------------------- |
 | **Train** | **1239 × 177** | **176 + target** | **✅ Ready** | `data/processed/train_encoded.csv` |
-| **Test** | **219 × 177** | **176 + target** | **✅ Ready** | `data/processed/test_encoded.csv` |
+| **Test**  | **219 × 177**  | **176 + target** | **✅ Ready** | `data/processed/test_encoded.csv`  |
 
 **✨ Final Features (176):**
+
 - **17 Ordinal:** Quality scales (ExterQual, KitchenQual, BsmtQual, etc.)
 - **114 One-Hot:** Nominal categoricals (MSZoning, Exterior1st, etc.)
 - **2 Target Encoded:** Neighborhood, Exterior2nd (cross-fit)
 - **43 Numeric:** Transformed & scaled (StandardScaler)
 
 **🎯 Target Variable:**
+
 - **SalePrice** (log-transformed)
 - **Skewness:** 2.009 → 0.205 (89.8% improvement)
 - **Outliers:** 25 (2.0%) - Decision: Keep all (regularization handles)
@@ -101,6 +105,7 @@ graph TD
 ```
 
 ### 1. Preprocessing (✅ HOÀN THÀNH)
+
 **File:** `src/Preprocessing.py`
 **Input:** 1460 × 81 (raw data, 6940 nulls)
 **Output:** 1458 × 81 (clean) + Split 85/15 (1239/219)
@@ -108,6 +113,7 @@ graph TD
 #### 📋 Chi Tiết BƯỚC:
 
 **BƯỚC 0: Fix MasVnrType & MasVnrArea Logic**
+
 ```python
 ├─ Case 1: Area=0, Type≠NULL → DELETE (2 rows inconsistent)
 ├─ Case 2: Area>0, Type=NULL → FILL mode (5 rows)
@@ -116,6 +122,7 @@ Result: 1460 → 1458 rows (-2 deleted)
 ```
 
 **BƯỚC 1: Fill Missing Values (6940 nulls → 0)**
+
 ```python
 ├─ Categorical nulls → 'None' (43 columns)
 ├─ Count/Area features → 0 (20 columns)
@@ -124,6 +131,7 @@ Result: 0 null values ✓
 ```
 
 **BƯỚC 2: Fix Garage Logic Consistency**
+
 ```python
 ├─ If GarageArea=0: Set GarageType/Finish/Qual/Cond='None' (81 rows)
 └─ Fill remaining nulls with mode
@@ -131,6 +139,7 @@ Result: Logical consistency ✓
 ```
 
 **Split 85/15 (Random State 42)**
+
 ```python
 ├─ Train: 1239 samples (85%)
 ├─ Test: 219 samples (15%)
@@ -138,6 +147,7 @@ Result: Logical consistency ✓
 ```
 
 ### 2. Feature Engineering (src/FeatureEngineering.py)
+
 - **Mục đích**: Tạo derived features để giảm multicollinearity
 - **Các phép biến đổi chính**:
   - **Garage**: GarageAreaPerCar, HasGarage (bỏ GarageCars)
@@ -148,6 +158,7 @@ Result: Logical consistency ✓
 - **Output**: 87 features
 
 ### 3. Transformation (src/Transformation.py)
+
 - **Mục đích**: Giảm skewness để model hoạt động tốt hơn
 - **Input**: `train_data.csv`, `test_data.csv` với 87 features
 - **Output**: `train_transformed.csv`, `test_transformed.csv`
@@ -160,6 +171,7 @@ Result: Logical consistency ✓
     - Có zeros/negatives: Yeo-Johnson
 
 ### 4. Encoding (src/Encoding.py)
+
 - **Mục đích**: Chuyển categorical features sang numeric + scale
 - **Input**: `train_transformed.csv`, `test_transformed.csv`
 - **Output**: `train_encoded.csv`, `test_encoded.csv` (176 features + target)
@@ -172,6 +184,7 @@ Result: Logical consistency ✓
 ## 🚀 Cách Sử Dụng
 
 ### ⚡ Quick Start
+
 ```bash
 # Cài đặt dependencies
 pip install -r requirements.txt
@@ -183,7 +196,121 @@ python app.py --step all
 ls -lh data/processed/train_encoded.csv data/processed/test_encoded.csv
 ```
 
+### 🎨 Chạy Streamlit Web App (Demo Interaktif)
+
+**🌟 Tính Năng Nổi Bật:**
+
+- ✅ **Dự báo giá nhà** với giao diện trực quan
+- ✅ **Explainable AI (XAI)** với SHAP values
+- ✅ **Global Feature Importance** - features quan trọng nhất
+- ✅ **Local Prediction Explanation** - giải thích từng dự đoán
+- ✅ **Model Info & Data Preview** - xem thông tin model và data
+
+#### 📦 Cài Đặt Dependencies
+
+```bash
+# Cài đặt thư viện cơ bản (nếu chưa có)
+pip install -r requirements.txt
+
+# Cài đặt SHAP cho explainability (khuyến nghị)
+pip install shap
+
+# Hoặc cài đặt toàn bộ từ requirements
+pip install streamlit matplotlib numpy pandas scikit-learn shap
+```
+
+#### 🚀 Khởi Chạy App
+
+```bash
+# Chạy Streamlit app
+streamlit run streamlit_app.py
+
+# App sẽ mở tự động tại: http://localhost:8501
+```
+
+#### 🎯 Các Trang Chính
+
+**1. 🏠 Predict (Dự Báo Giá Nhà)**
+
+- Form nhập thông tin nhà (location, area, quality, garage, basement, etc.)
+- Dự đoán giá nhà real-time với confidence
+- Giải thích dự đoán với SHAP values (nếu đã cài SHAP)
+- Hiển thị top 15 features ảnh hưởng đến dự đoán
+
+**2. 🔍 Model Explainability (Giải Thích Model)**
+
+- **Global Feature Importance**: Xem features quan trọng nhất của model
+- Biểu đồ ranking features theo mean absolute SHAP value
+- Bảng chi tiết với mean SHAP value và importance
+- Thống kê: Tổng features, Top 5 chiếm bao nhiêu %
+
+**3. 📘 Model Info**
+
+- Xem cấu hình model (hyperparameters, performance metrics)
+- Hiển thị best_model_config.json
+
+**4. 📄 Data Preview**
+
+- Preview 10 dòng đầu của training data
+- Xem ProcessReport.md với chi tiết pipeline
+
+#### 💡 Tips & Best Practices
+
+```bash
+# Chạy với port tùy chỉnh
+streamlit run streamlit_app.py --server.port 8502
+
+# Chạy với theme tối
+streamlit run streamlit_app.py --theme.base dark
+
+# Disable file watcher (cho production)
+streamlit run streamlit_app.py --server.fileWatcherType none
+```
+
+#### 🔧 Troubleshooting
+
+**Lỗi: "SHAP chưa được cài đặt"**
+
+```bash
+pip install shap
+```
+
+**Lỗi: "Không thể load model explainer"**
+
+```bash
+# Đảm bảo đã train model trước
+python app.py --step model
+
+# Kiểm tra file artifacts
+ls -lh models/best_model.pkl models/best_model_config.json
+```
+
+**Lỗi: "No module named 'src'"**
+
+```bash
+# Chạy từ thư mục root của project
+cd Project-5.1
+streamlit run streamlit_app.py
+```
+
+#### 📸 Screenshots & Demo
+
+**Trang Predict:**
+
+- Input form với các trường phân nhóm rõ ràng
+- Real-time prediction với giá USD và log scale
+- SHAP waterfall plot cho local explanation
+- Top 15 features đóng góp vào dự đoán
+
+**Trang Explainability:**
+
+- Global feature importance bar chart
+- Interactive slider chọn số features hiển thị (10-50)
+- Bảng chi tiết với mean SHAP values
+- Thống kê: Top features chiếm % tổng importance
+
 ### 🎛️ Chạy Các Bước Riêng Lẻ
+
 ```bash
 python app.py --step preprocess     # BƯỚC 0-2 + split 85/15
 python app.py --step fe             # Feature engineering (6 new features)
@@ -193,6 +320,7 @@ python app.py --step model          # Modeling (placeholder - future)
 ```
 
 ### 📊 Workflow Hiện Tại (✅ 100% Hoàn Thành)
+
 ```bash
 # Pipeline preprocessing đã hoàn thành
 echo "✅ Data ready at:"
@@ -205,6 +333,7 @@ cat reports/ProcessReport.md             # Comprehensive progress report (Tiến
 ```
 
 ### 🔧 Advanced Usage
+
 ```bash
 # Custom data path
 python app.py --step all --raw-data data/raw/custom_data.csv
@@ -217,6 +346,7 @@ python app.py --step fe --step transform --step encode
 ```
 
 ### 📋 Kiểm Tra & Validation
+
 ```bash
 # Verify final datasets
 python -c "
@@ -233,30 +363,31 @@ print(f'Features: {train.shape[1]-1} numeric + SalePrice target')
 
 ### 🎯 Data Flow Hoàn Chỉnh
 
-| Giai Đoạn | Mẫu | Features | Shape | File | Ghi Chú |
-|-----------|-----|----------|-------|------|---------|
-| **Raw Data** | **1460** | **81** | **(1460, 81)** | `data/raw/*.csv` | Dataset gốc từ Kaggle, 6940 nulls |
-| **Preprocessing** | **1458** | **81** | **(1458, 81)** | `data/processed/train_preprocessed.csv` | Xóa 2 dòng lỗi, 0 nulls |
-| **Train Split** | **1239** | **81** | **(1239, 81)** | `data/processed/train_data.csv` | **85% training data** |
-| **Test Split** | **219** | **81** | **(219, 81)** | `data/processed/test_data.csv` | **15% holdout test** |
-| **Feature Engineering** | **1239** | **87** | **(1239, 87)** | `data/processed/train_fe.csv` | +6 derived features |
-| **Transformation** | **1239** | **88** | **(1239, 88)** | `data/processed/train_transformed.csv` | Log/Yeo-Johnson, skewness reduced |
-| **🎯 FINAL** | **1239** | **177** | **(1239, 177)** | `data/processed/train_encoded.csv` | **✅ Ready for modeling** |
+| Giai Đoạn               | Mẫu      | Features | Shape           | File                                    | Ghi Chú                           |
+| ----------------------- | -------- | -------- | --------------- | --------------------------------------- | --------------------------------- |
+| **Raw Data**            | **1460** | **81**   | **(1460, 81)**  | `data/raw/*.csv`                        | Dataset gốc từ Kaggle, 6940 nulls |
+| **Preprocessing**       | **1458** | **81**   | **(1458, 81)**  | `data/processed/train_preprocessed.csv` | Xóa 2 dòng lỗi, 0 nulls           |
+| **Train Split**         | **1239** | **81**   | **(1239, 81)**  | `data/processed/train_data.csv`         | **85% training data**             |
+| **Test Split**          | **219**  | **81**   | **(219, 81)**   | `data/processed/test_data.csv`          | **15% holdout test**              |
+| **Feature Engineering** | **1239** | **87**   | **(1239, 87)**  | `data/processed/train_fe.csv`           | +6 derived features               |
+| **Transformation**      | **1239** | **88**   | **(1239, 88)**  | `data/processed/train_transformed.csv`  | Log/Yeo-Johnson, skewness reduced |
+| **🎯 FINAL**            | **1239** | **177**  | **(1239, 177)** | `data/processed/train_encoded.csv`      | **✅ Ready for modeling**         |
 
 ### 📈 Key Metrics & Improvements
 
-| Metric | Before | After | Improvement | Status |
-|--------|--------|-------|-------------|--------|
-| **Null Values** | 6940 | 0 | 100% | ✅ Complete |
-| **Target Skewness** | 2.009 | 0.205 | 89.8% | ✅ Excellent |
-| **Features** | 81 | 177 | +118.5% | ✅ Comprehensive |
-| **Multicollinearity** | High | Reduced | VIF < 5 | ✅ Good |
-| **Data Leakage** | N/A | 0% | Cross-fit | ✅ Safe |
-| **Outliers** | Analyzed | Decision made | Keep all | ✅ Regularization ready |
+| Metric                | Before   | After         | Improvement | Status                  |
+| --------------------- | -------- | ------------- | ----------- | ----------------------- |
+| **Null Values**       | 6940     | 0             | 100%        | ✅ Complete             |
+| **Target Skewness**   | 2.009    | 0.205         | 89.8%       | ✅ Excellent            |
+| **Features**          | 81       | 177           | +118.5%     | ✅ Comprehensive        |
+| **Multicollinearity** | High     | Reduced       | VIF < 5     | ✅ Good                 |
+| **Data Leakage**      | N/A      | 0%            | Cross-fit   | ✅ Safe                 |
+| **Outliers**          | Analyzed | Decision made | Keep all    | ✅ Regularization ready |
 
 ### 🏗️ Features Engineering Summary
 
 **➕ Added 6 Derived Features:**
+
 1. **GarageAreaPerCar** - Efficiency metric (area per car)
 2. **HasGarage** - Binary flag (presence/absence)
 3. **AvgRoomSize** - Quality metric (area per room)
@@ -265,6 +396,7 @@ print(f'Features: {train.shape[1]-1} numeric + SalePrice target')
 6. **HouseAge** - Time since construction
 
 **➖ Removed 7 Redundant Features:**
+
 - GarageCars (multicollinear with GarageArea)
 - TotRmsAbvGrd (multicollinear with GrLivArea)
 - TotalBsmtSF (multicollinear with 1stFlrSF)
@@ -276,7 +408,8 @@ print(f'Features: {train.shape[1]-1} numeric + SalePrice target')
 ### ✅ 100% Preprocessing Hoàn Thành
 
 **🎯 Data Ready for Modeling:**
-```",
+
+````",
 "✅ Train: data/processed/train_encoded.csv (1239×177)",
 "✅ Test:  data/processed/test_encoded.csv (219×177)",
 "✅ Target: SalePrice (log-transformed, skewness: 0.205)",
@@ -317,10 +450,11 @@ cv = KFold(n_splits=5, shuffle=True, random_state=42)
 scoring = 'neg_mean_squared_error'
 
 # Final evaluation on holdout test set
-```
+````
 
 #### 📊 Expected Performance:
-```",
+
+````",
 "├─ Ridge/Lasso: R² ≈ 0.85-0.92 (with optimal α)",
 "├─ Robust to outliers (regularization handles extreme values)",
 "├─ Feature importance: Stable and interpretable",
@@ -360,11 +494,12 @@ python app.py --step model --model elasticnet
 
 # Compare results
 python notebooks/model_comparison.ipynb
-```
+````
 
 ## 📦 Dependencies & Installation
 
 ### 🚀 Quick Installation
+
 ```bash
 # Clone repository and install dependencies
 git clone <repository-url>
@@ -378,15 +513,18 @@ python app.py --step all
 ### 📚 Core Libraries Used
 
 **Data Processing & ML:**
+
 - **pandas 2.0.3** - Data manipulation and analysis
 - **numpy 1.24.3** - Numerical computing
 - **scikit-learn 1.3.0** - Preprocessing, encoding, metrics, regularization models
 
 **Statistics & Transformation:**
+
 - **scipy 1.11.2** - Scientific computing, statistical tests, power transforms
 - **statsmodels 0.14.0** - Advanced statistical modeling
 
 **Visualization & Development:**
+
 - **matplotlib 3.7.2** - Plotting and visualization
 - **seaborn 0.12.2** - Statistical data visualization
 - **jupyter 1.0.0** - Jupyter notebook environment
@@ -394,6 +532,7 @@ python app.py --step all
 ### 🔧 Configuration Files
 
 #### `data/interim/encoding_config.json`
+
 ```json
 {
   "ordinal_features": 17,           // Quality scales (ExterQual → 0-4)
@@ -405,6 +544,7 @@ python app.py --step all
 ```
 
 #### `data/interim/transformation_config.json`
+
 ```json
 {
   "SalePrice": {
@@ -415,7 +555,7 @@ python app.py --step all
   },
   "KitchenAbvGr": {
     "method": "bin",
-    "bins": {"0": "<=1", "1": "2", "2": ">=3"}
+    "bins": { "0": "<=1", "1": "2", "2": ">=3" }
   }
 }
 ```
@@ -423,16 +563,19 @@ python app.py --step all
 ## 📊 Technical Achievements
 
 ### ✅ Data Quality Improvements
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Null Values** | 6,940 | 0 | **100%** ✅ |
-| **Target Skewness** | 2.009 | 0.205 | **89.8%** ✅ |
-| **Features** | 81 | 177 | **+118.5%** ✅ |
-| **Multicollinearity** | High | VIF < 5 | **Reduced** ✅ |
-| **Data Leakage** | N/A | 0% | **Prevented** ✅ |
+
+| Metric                | Before | After   | Improvement      |
+| --------------------- | ------ | ------- | ---------------- |
+| **Null Values**       | 6,940  | 0       | **100%** ✅      |
+| **Target Skewness**   | 2.009  | 0.205   | **89.8%** ✅     |
+| **Features**          | 81     | 177     | **+118.5%** ✅   |
+| **Multicollinearity** | High   | VIF < 5 | **Reduced** ✅   |
+| **Data Leakage**      | N/A    | 0%      | **Prevented** ✅ |
 
 ### 🏗️ Feature Engineering Impact
+
 **Added 6 Derived Features:**
+
 - **GarageAreaPerCar** - Efficiency (correlation: 0.88 → 0.30 with GarageCars)
 - **AvgRoomSize** - Quality metric (correlation: 0.825 → 0.654 with TotRmsAbvGrd)
 - **BasementResid** - Orthogonalized (correlation: 0.820 → 0.000 with 1stFlrSF)
@@ -440,6 +583,7 @@ python app.py --step all
 - **Binary Flags** - Presence indicators (HasGarage, HasBasement, etc.)
 
 ### 🔒 Data Leakage Prevention
+
 - **Early 85/15 split** before any preprocessing
 - **Cross-fit strategy** for all transformations
 - **Train-only fitting** for encoders, scalers, transformers
@@ -450,7 +594,8 @@ python app.py --step all
 ### ✅ CURRENT STATUS: 100% PREPROCESSING COMPLETE
 
 **Ready for Modeling:**
-```",
+
+````",
 "🎯 Train: data/processed/train_encoded.csv (1239×177)",
 "🎯 Test:  data/processed/test_encoded.csv (219×177)",
 "🎯 Target: SalePrice (log-transformed, skewness ≈ 0.2)",
@@ -513,3 +658,4 @@ This project demonstrates a **complete machine learning pipeline** for house pri
 ---
 **Status:** ✅ **All preprocessing phases complete - Ready for modeling**
 **Next:** Regression + Regularization implementation with hyperparameter tuning
+````
