@@ -28,7 +28,7 @@ import numpy as np
 from sklearn.preprocessing import (
     OrdinalEncoder,
     OneHotEncoder,
-    TargetEncoder,      # cần sklearn có TargetEncoder
+    TargetEncoder,  # cần sklearn có TargetEncoder
     StandardScaler,
 )
 from sklearn.impute import SimpleImputer
@@ -42,41 +42,84 @@ class SklearnEncodingPipeline:
         # a) Ordinal mappings (thứ bậc chất lượng / mức độ)
         #    Key: cột; Value: dict {category: rank}, rank nhỏ = "tệ hơn"
         self.ordinal_mappings = {
-            'ExterQual':     {'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'ExterCond':     {'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'KitchenQual':   {'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'HeatingQC':     {'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'FireplaceQu':   {'None': -1, 'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'GarageQual':    {'None': -1, 'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'GarageCond':    {'None': -1, 'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'BsmtQual':      {'None': -1, 'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'BsmtCond':      {'None': -1, 'Po': 0, 'Fa': 1, 'TA': 2, 'Gd': 3, 'Ex': 4},
-            'GarageFinish':  {'None': -1, 'Unf': 1, 'RFn': 2, 'Fin': 3},
-            'BsmtExposure':  {'None': -1, 'No': 0, 'Mn': 1, 'Av': 2, 'Gd': 3},
-            'BsmtFinType1':  {'None': -1, 'Unf': 0, 'LwQ': 1, 'Rec': 2, 'BLQ': 3, 'ALQ': 4, 'GLQ': 5},
-            'BsmtFinType2':  {'None': -1, 'Unf': 0, 'LwQ': 1, 'Rec': 2, 'BLQ': 3, 'ALQ': 4, 'GLQ': 5},
-            'LotShape':      {'IR3': 0, 'IR2': 1, 'IR1': 2, 'Reg': 3},
-            'LandSlope':     {'Sev': 0, 'Mod': 1, 'Gtl': 2},
-            'PavedDrive':    {'N': 0, 'P': 1, 'Y': 2},
-            'Functional':    {'Sev': 0, 'Maj2': 1, 'Maj1': 2, 'Mod': 3,
-                               'Min2': 4, 'Min1': 5, 'Typ': 6},
+            "ExterQual": {"Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "ExterCond": {"Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "KitchenQual": {"Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "HeatingQC": {"Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "FireplaceQu": {"None": -1, "Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "GarageQual": {"None": -1, "Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "GarageCond": {"None": -1, "Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "BsmtQual": {"None": -1, "Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "BsmtCond": {"None": -1, "Po": 0, "Fa": 1, "TA": 2, "Gd": 3, "Ex": 4},
+            "GarageFinish": {"None": -1, "Unf": 1, "RFn": 2, "Fin": 3},
+            "BsmtExposure": {"None": -1, "No": 0, "Mn": 1, "Av": 2, "Gd": 3},
+            "BsmtFinType1": {
+                "None": -1,
+                "Unf": 0,
+                "LwQ": 1,
+                "Rec": 2,
+                "BLQ": 3,
+                "ALQ": 4,
+                "GLQ": 5,
+            },
+            "BsmtFinType2": {
+                "None": -1,
+                "Unf": 0,
+                "LwQ": 1,
+                "Rec": 2,
+                "BLQ": 3,
+                "ALQ": 4,
+                "GLQ": 5,
+            },
+            "LotShape": {"IR3": 0, "IR2": 1, "IR1": 2, "Reg": 3},
+            "LandSlope": {"Sev": 0, "Mod": 1, "Gtl": 2},
+            "PavedDrive": {"N": 0, "P": 1, "Y": 2},
+            "Functional": {
+                "Sev": 0,
+                "Maj2": 1,
+                "Maj1": 2,
+                "Mod": 3,
+                "Min2": 4,
+                "Min1": 5,
+                "Typ": 6,
+            },
         }
         self.ordinal_cols = list(self.ordinal_mappings.keys())
 
         # b) Nominal (one-hot)
         self.ohe_cols = [
-            'MSZoning', 'Street', 'Alley', 'LandContour', 'Utilities', 'LotConfig',
-            'Condition1', 'Condition2', 'BldgType', 'HouseStyle', 'RoofStyle', 'RoofMatl',
-            'Exterior1st', 'MasVnrType', 'Foundation', 'Heating', 'CentralAir', 'Electrical',
-            'GarageType', 'PoolQC', 'Fence', 'MiscFeature', 'SaleType', 'SaleCondition',
-            'LandContour'  # nếu lặp lại thì lát nữa sẽ deduplicate
+            "MSZoning",
+            "Street",
+            "Alley",
+            "LandContour",
+            "Utilities",
+            "LotConfig",
+            "Condition1",
+            "Condition2",
+            "BldgType",
+            "HouseStyle",
+            "RoofStyle",
+            "RoofMatl",
+            "Exterior1st",
+            "MasVnrType",
+            "Foundation",
+            "Heating",
+            "CentralAir",
+            "Electrical",
+            "GarageType",
+            "PoolQC",
+            "Fence",
+            "MiscFeature",
+            "SaleType",
+            "SaleCondition",
+            "LandContour",  # nếu lặp lại thì lát nữa sẽ deduplicate
         ]
 
         # c) High-cardinality → TargetEncoder
-        self.target_enc_cols = ['Neighborhood', 'Exterior2nd']
+        self.target_enc_cols = ["Neighborhood", "Exterior2nd"]
 
         # d) Tên cột bị drop chắc chắn
-        self.drop_cols = ['Id']
+        self.drop_cols = ["Id"]
 
         # sau khi fit, mình sẽ lưu:
         self.pipeline_ = None
@@ -94,13 +137,14 @@ class SklearnEncodingPipeline:
 
         # Lấy danh sách cột thực sự tồn tại trong X
         ordinal_cols = [c for c in self.ordinal_cols if c in X.columns]
-        ohe_cols     = [c for c in self.ohe_cols if c in X.columns]
-        target_cols  = [c for c in self.target_enc_cols if c in X.columns]
+        ohe_cols = [c for c in self.ohe_cols if c in X.columns]
+        target_cols = [c for c in self.target_enc_cols if c in X.columns]
 
         # numeric_cols = tất cả numeric còn lại không nằm trong ba nhóm trên + không phải drop_cols
         candidate_numeric = X.select_dtypes(include=[np.number]).columns.tolist()
         numeric_cols = [
-            c for c in candidate_numeric
+            c
+            for c in candidate_numeric
             if c not in self.drop_cols
             and c not in ordinal_cols
             and c not in ohe_cols
@@ -112,65 +156,79 @@ class SklearnEncodingPipeline:
         # sklearn.OrdinalEncoder muốn categories=[list_for_col1, list_for_col2, ...]
         ordinal_categories = []
         for col in ordinal_cols:
-            mapping = self.ordinal_mappings[col]   # ex: {'None': -1, 'Po':0, ...}
+            mapping = self.ordinal_mappings[col]  # ex: {'None': -1, 'Po':0, ...}
             # sắp xếp key theo giá trị rank tăng dần
             ordered_levels = sorted(mapping.keys(), key=lambda k: mapping[k])
             ordinal_categories.append(ordered_levels)
 
         ordinal_encoder = OrdinalEncoder(
             categories=ordinal_categories,
-            handle_unknown='use_encoded_value',
+            handle_unknown="use_encoded_value",
             unknown_value=-1,
             encoded_missing_value=-1,
         )
 
         # ----- OneHotEncoder -----
         # Nhiều cột nominal có NA => Imputer(most_frequent) trước OHE
-        ohe_pipe = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='most_frequent')),
-            ('ohe', OneHotEncoder(
-                handle_unknown='ignore',
-                drop='first',            # tránh multicollinearity quá mạnh
-                sparse_output=False,     # output dense để scaler xử lý được
-            )),
-        ])
+        ohe_pipe = Pipeline(
+            steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                (
+                    "ohe",
+                    OneHotEncoder(
+                        handle_unknown="ignore",
+                        drop="first",  # tránh multicollinearity quá mạnh
+                        sparse_output=False,  # output dense để scaler xử lý được
+                    ),
+                ),
+            ]
+        )
 
         # ----- TargetEncoder -----
         # Với TargetEncoder, ta cũng impute most_frequent trước
         # TargetEncoder trong sklearn có tham số cv=5 mặc định để cross-fit
         # và fit_transform() sẽ tự dùng cross-fitting để tránh leakage.
         # Khi Pipeline.fit_transform chạy cho train, nó sẽ gọi đúng logic này.
-        tgt_pipe = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='most_frequent')),
-            ('tgt', TargetEncoder(
-                cv=5,              # cross-fit K-fold =5
-                smooth='auto',     # smoothing shrink về global mean
-                random_state=0,
-            )),
-        ])
+        tgt_pipe = Pipeline(
+            steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                (
+                    "tgt",
+                    TargetEncoder(
+                        cv=5,  # cross-fit K-fold =5
+                        smooth="auto",  # smoothing shrink về global mean
+                        random_state=0,
+                    ),
+                ),
+            ]
+        )
 
         # ----- Numeric -----
         # Impute median cho numeric còn lại (LotFrontage,...)
-        num_pipe = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='median')),
-        ])
+        num_pipe = Pipeline(
+            steps=[
+                ("imputer", SimpleImputer(strategy="median")),
+            ]
+        )
 
         # ----- ColumnTransformer -----
         pre = ColumnTransformer(
             transformers=[
-                ('ord', ordinal_encoder, ordinal_cols),
-                ('ohe', ohe_pipe, ohe_cols),
-                ('tgt', tgt_pipe, target_cols),
-                ('num', num_pipe, numeric_cols),
+                ("ord", ordinal_encoder, ordinal_cols),
+                ("ohe", ohe_pipe, ohe_cols),
+                ("tgt", tgt_pipe, target_cols),
+                ("num", num_pipe, numeric_cols),
             ],
-            remainder='drop',
+            remainder="drop",
         )
 
         # ----- Full pipeline -----
-        full = Pipeline(steps=[
-            ('pre', pre),
-            ('scaler', StandardScaler()),
-        ])
+        full = Pipeline(
+            steps=[
+                ("pre", pre),
+                ("scaler", StandardScaler()),
+            ]
+        )
 
         return full
 
@@ -183,7 +241,7 @@ class SklearnEncodingPipeline:
         - Lưu lại DataFrame sau encode/scale
         """
         df_train = pd.read_csv(train_path)
-        df_test  = pd.read_csv(test_path)
+        df_test = pd.read_csv(test_path)
 
         # Bỏ cột Id nếu có
         for c in self.drop_cols:
@@ -193,11 +251,11 @@ class SklearnEncodingPipeline:
                 df_test = df_test.drop(columns=[c])
 
         # Tách target
-        y_train = df_train['SalePrice'].values
-        y_test  = df_test['SalePrice'].values if 'SalePrice' in df_test.columns else None
+        y_train = df_train["SalePrice"].values
+        y_test = df_test["SalePrice"].values if "SalePrice" in df_test.columns else None
 
-        X_train = df_train.drop(columns=['SalePrice'])
-        X_test  = df_test.drop(columns=['SalePrice'])
+        X_train = df_train.drop(columns=["SalePrice"])
+        X_test = df_test.drop(columns=["SalePrice"])
 
         # Build & fit pipeline
         self.pipeline_ = self._build_pipeline(X_train)
@@ -208,31 +266,37 @@ class SklearnEncodingPipeline:
         # transform test (TargetEncoder.transform sẽ encode test bằng stats fit trên full train)
 
         # Avoid TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
-        #This was caused by the fact that, at transform time, one of the columns to be transformed had a type float64 as opposed to object - an entire column was NaN.
-        #The solution was to cast the dataframe to object type before invoking transform
-        X_test_arr  = self.pipeline_.transform(X_test.astype("O")) 
+        # This was caused by the fact that, at transform time, one of the columns to be transformed had a type float64 as opposed to object - an entire column was NaN.
+        # The solution was to cast the dataframe to object type before invoking transform
+        X_test_arr = self.pipeline_.transform(X_test.astype("O"))
 
         # Lấy tên cột sau transform
-        pre = self.pipeline_.named_steps['pre']
+        pre = self.pipeline_.named_steps["pre"]
         feat_names = pre.get_feature_names_out()
         self.feature_names_ = feat_names
 
         # Convert về DataFrame
-        train_encoded = pd.DataFrame(X_train_arr, columns=feat_names, index=X_train.index)
-        train_encoded['SalePrice'] = y_train
+        train_encoded = pd.DataFrame(
+            X_train_arr, columns=feat_names, index=X_train.index
+        )
+        train_encoded["SalePrice"] = y_train
 
         test_encoded = pd.DataFrame(X_test_arr, columns=feat_names, index=X_test.index)
         if y_test is not None:
-            test_encoded['SalePrice'] = y_test
+            test_encoded["SalePrice"] = y_test
 
         return train_encoded, test_encoded
 
-    def save(self, train_encoded, test_encoded,
-             processed_dir='data/processed',
-             interim_dir='data/interim',
-             train_output='train_encoded.csv',
-             test_output='test_encoded.csv',
-             config_output='encoding_config.json'):
+    def save(
+        self,
+        train_encoded,
+        test_encoded,
+        processed_dir="data/processed",
+        interim_dir="data/interim",
+        train_output="train_encoded.csv",
+        test_output="test_encoded.csv",
+        config_output="encoding_config.json",
+    ):
         """Lưu kết quả encode ra csv + metadata đơn giản."""
         import json
         import os

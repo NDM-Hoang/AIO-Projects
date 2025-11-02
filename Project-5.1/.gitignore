@@ -9,6 +9,10 @@
 /models/*.joblib
 !models/best_model_config.json
 
+# Large files (images, notebooks)
+/images/*.png
+/notebooks/*.ipynb
+
 # Python
 __pycache__/
 *.py[cod]

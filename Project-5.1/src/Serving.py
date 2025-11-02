@@ -55,7 +55,7 @@ def load_artifacts() -> Tuple[Any, List[str], Dict[str, Any], Dict[str, Any]]:
     train_df = pd.read_csv(train_raw_path)
     defaults_series = train_df.drop(columns=["SalePrice"]).median(numeric_only=True)
     defaults: Dict[str, Any] = {}
-    if hasattr(defaults_series, 'to_dict'):
+    if hasattr(defaults_series, "to_dict"):
         defaults = defaults_series.to_dict()
     else:
         # Fallback if defaults_series is not a Series
@@ -66,12 +66,16 @@ def load_artifacts() -> Tuple[Any, List[str], Dict[str, Any], Dict[str, Any]]:
     for col in train_df.select_dtypes(include=["object"]).columns:
         if col == "SalePrice":
             continue
-        defaults[col] = train_df[col].mode().iloc[0] if not train_df[col].mode().empty else "None"
+        defaults[col] = (
+            train_df[col].mode().iloc[0] if not train_df[col].mode().empty else "None"
+        )
 
     return model, feature_names, transform_config, defaults
 
 
-def prepare_single_record(raw_input: Dict[str, Any], defaults: Dict[str, Any]) -> pd.DataFrame:
+def prepare_single_record(
+    raw_input: Dict[str, Any], defaults: Dict[str, Any]
+) -> pd.DataFrame:
     """Build a one-row raw dataframe (close to original columns) with defaults.
 
     Any missing keys are filled from defaults. Extra keys are ignored.
@@ -99,7 +103,7 @@ def prepare_single_record(raw_input: Dict[str, Any], defaults: Dict[str, Any]) -
 def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
     """Apply FE → Transformation → Encoding to match training schema.
 
-    Note: Preprocessing was applied before split in the project pipeline; 
+    Note: Preprocessing was applied before split in the project pipeline;
     at serving time, we assume inputs are already clean or resemble processed
     train_data columns. If needed, minimal guards can be added here.
     """
@@ -109,15 +113,15 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
 
     # Start from a copy
     df = df_raw_one_row.copy()
-    
+
     # Ensure all categorical columns have proper string values
-    categorical_cols = df.select_dtypes(include=['object']).columns
+    categorical_cols = df.select_dtypes(include=["object"]).columns
     for col in categorical_cols:
         if col in df.columns:
             # Replace any non-string values with "None"
             df[col] = df[col].astype(str)
-            df[col] = df[col].replace(['nan', 'None', 'null'], 'None')
-    
+            df[col] = df[col].replace(["nan", "None", "null"], "None")
+
     # We need a dummy target to satisfy downstream code; use median SalePrice
     # It will be dropped by scaler split inside Encoding
     train_raw_path = DATA_PROCESSED / "train_data.csv"
@@ -128,11 +132,11 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
     fe = FeatureEngineer(df)
     df_fe = (
         fe.engineer_garage_features()
-          .engineer_area_features()
-          .engineer_basement_features()
-          .engineer_age_features()
-          .engineer_quality_features()
-          .get_dataframe()
+        .engineer_area_features()
+        .engineer_basement_features()
+        .engineer_age_features()
+        .engineer_quality_features()
+        .get_dataframe()
     )
 
     # Save temporary single-row CSV for downstream modules expecting file IO
@@ -146,7 +150,9 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
     # Fit on full training FE data, apply to single-row test FE
     train_fe_path = DATA_PROCESSED / "train_fe.csv"
     if not train_fe_path.exists():
-        raise FileNotFoundError("Missing train_fe.csv. Run pipeline first (preprocess→fe→transform→encode).")
+        raise FileNotFoundError(
+            "Missing train_fe.csv. Run pipeline first (preprocess→fe→transform→encode)."
+        )
     transformer.run_pipeline(train_path=str(train_fe_path), test_path=str(tmp_test_fe))
 
     tmp_test_trans = DATA_PROCESSED / "test_transformed.csv"
@@ -154,7 +160,9 @@ def run_full_processing(df_raw_one_row: pd.DataFrame) -> pd.DataFrame:
     # 3) Encoding (updated to use SklearnEncodingPipeline)
     train_transformed_path = DATA_PROCESSED / "train_transformed.csv"
     if not train_transformed_path.exists():
-        raise FileNotFoundError("Missing train_transformed.csv. Run pipeline first (transform step).")
+        raise FileNotFoundError(
+            "Missing train_transformed.csv. Run pipeline first (transform step)."
+        )
 
     enc = SklearnEncodingPipeline()
     train_encoded_df, test_encoded_df = enc.fit_transform(
@@ -207,5 +215,3 @@ def predict_single(input_dict: Dict) -> Dict:
         "prediction": saleprice,
         "currency": "USD",
     }
-
-

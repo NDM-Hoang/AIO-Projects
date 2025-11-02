@@ -41,11 +41,11 @@ Module chính cung cấp các tính năng explainability:
 - Bảng chi tiết với SHAP values và phần trăm đóng góp
 
 #### **Trang Model Explainability**
-- **Global Feature Importance**: 
+- **Global Feature Importance**:
   - Top N features quan trọng nhất trong model
   - Visualization và bảng dữ liệu
   - Thống kê tổng quan
-  
+
 - **Giải thích về SHAP**: Hướng dẫn cách đọc và hiểu SHAP values
 
 ## Cách Sử Dụng
@@ -122,7 +122,7 @@ Giả sử:
 
 ## Lưu Ý
 
-1. **Hiệu Suất**: 
+1. **Hiệu Suất**:
    - Tree explainer và Linear explainer rất nhanh
    - Kernel explainer có thể chậm với dataset lớn
 
@@ -166,4 +166,3 @@ pip install shap
 - Interaction effects
 - LIME integration (alternative to SHAP)
 - Explanation comparison giữa các models
-
