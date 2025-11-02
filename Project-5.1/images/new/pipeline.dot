@@ -1,0 +1,15 @@
+digraph G {
+  rankdir=TB; splines=ortho; nodesep=0.5; ranksep=0.6;
+  node [shape=box, style="rounded", fontname="Inter, Helvetica, Arial"];
+
+  A [label="RAW DATA (1,460 × 81)\n• 7,829 nulls\n• Logical errors\n• Mixed data types"];
+  B [label="STEP 1: PREPROCESSING\n• Fix MasVnr logic (delete 2 rows)\n• Fill 6,940 nulls\n• Fix Garage consistency\n• Train/Test Split (85/15)"];
+  C [label="TRAIN\n1,239 × 81"];
+  D [label="TEST\n219 × 81"];
+  E [label="STEP 2: FEATURE ENGINEERING\n• Create derived features (+6)\n• Orthogonalize residuals\n• Binary flags (Has* features)"];
+  F [label="STEP 3: TRANSFORMATION\n• log1p(SalePrice): skew 2.009 → 0.205\n• log1p for 15 features\n• Yeo-Johnson for 9 features\n• Binning: KitchenAbvGr"];
+  G2 [label="STEP 4: ENCODING\n• Ordinal: 17 (Quality scales)\n• One-Hot: 110 (Nominal cats)\n• Target Encoding: 2 (Cross-fit K=5)\n• StandardScaler: All 173"];
+  H [label="FINAL: PRODUCTION-READY\n• 1,239 × 173 (train)\n• 219 × 173 (test)\n• 0 nulls, 0 logical errors\n• Zero leakage, fully reproducible"];
+
+  A -> B; B -> C; B -> D; C -> E; D -> E; E -> F -> G2 -> H; {rank=same; C; D;}
+}

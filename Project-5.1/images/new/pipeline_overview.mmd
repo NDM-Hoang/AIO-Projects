@@ -1,0 +1,16 @@
+flowchart LR
+  A["RAW DATA (1,460 × 81)<br/>• 7,829 nulls<br/>• Logical errors<br/>• Mixed data types"]
+  B["STEP 1: PREPROCESSING<br/>• Fix MasVnr logic (delete 2 rows)<br/>• Fill 6,940 nulls<br/>• Fix Garage consistency<br/>• Train/Test Split (85/15)"]
+  C["TRAIN<br/>1,239 × 81"]
+  D["TEST<br/>219 × 81"]
+  E["STEP 2: FEATURE ENGINEERING<br/>• Create derived features (+6)<br/>• Orthogonalize residuals<br/>• Binary flags (Has* features)"]
+  F["STEP 3: TRANSFORMATION<br/>• log1p(SalePrice): skew 2.009 → 0.205<br/>• log1p for 15 features<br/>• Yeo-Johnson for 9 features<br/>• Binning: KitchenAbvGr"]
+  G["STEP 4: ENCODING<br/>• Ordinal: 17 features (Quality scales)<br/>• One-Hot: 110 features (Nominal cats)<br/>• Target Encoding: 2 (Cross-fit K=5)<br/>• StandardScaler: All 173"]
+  H["FINAL: PRODUCTION-READY<br/>• 1,239 × 173 (train)<br/>• 219 × 173 (test)<br/>• 0 nulls, 0 logical errors<br/>• Zero leakage, fully reproducible"]
+
+  A --> B
+  B --> C
+  B --> D
+  C --> E
+  D --> E
+  E --> F --> G --> H

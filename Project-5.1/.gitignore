@@ -62,9 +62,6 @@ Thumbs.db
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Pre-commit
-.pre-commit-config.yaml.bak
-
 # Logs
 *.log
 logs/
