@@ -342,20 +342,6 @@ def page_model_info():
         st.info("Config not found. Train the pipeline first.")
 
 
-def page_data_preview():
-    st.header("📄 Data Preview")
-    train_path = ROOT / "data" / "processed" / "train_data.csv"
-    if train_path.exists():
-        df = pd.read_csv(train_path).head(10)
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.info("No processed data found. Run pipeline.")
-
-    report_path = ROOT / "reports" / "ProcessReport.md"
-    if report_path.exists():
-        with open(report_path, "r", encoding="utf-8") as f:
-            st.markdown(f.read())
-
 
 def page_explain():
     """Page for model explainability - global feature importance."""
@@ -466,7 +452,7 @@ def main():
     st.sidebar.title("Navigation")
     page = st.sidebar.radio(
         "Go to",
-        options=["Predict", "Model Explainability", "Model Info", "Data Preview"],
+        options=["Predict", "Model Explainability", "Model Info"],
         index=0,
     )
 
@@ -476,8 +462,7 @@ def main():
         page_explain()
     elif page == "Model Info":
         page_model_info()
-    else:
-        page_data_preview()
+
 
 
 if __name__ == "__main__":
