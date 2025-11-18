@@ -1,0 +1,13 @@
+Model,Horizon,Seq_Len,ForecastFile,RMSE_test,Retrain_epochs
+DLinear,120d,120,submissions/submission_dlinear_120d_100d.csv,24.189782323279726,132
+DLinear,30d,30,submissions/submission_dlinear_30d_100d.csv,26.66714222801864,160
+DLinear,480d,480,submissions/submission_dlinear_480d_100d.csv,58.09017353837695,493
+DLinear,7d,7,submissions/submission_dlinear_7d_100d.csv,25.306872686600002,251
+Linear,120d,120,submissions/submission_linear_120d_100d.csv,21.299811649832947,220
+Linear,30d,30,submissions/submission_linear_30d_100d.csv,26.83082534094996,279
+Linear,480d,480,submissions/submission_linear_480d_100d.csv,61.032184052632225,607
+Linear,7d,7,submissions/submission_linear_7d_100d.csv,25.52224180318328,290
+NLinear,120d,120,submissions/submission_nlinear_120d_100d.csv,10.5648053604734,158
+NLinear,30d,30,submissions/submission_nlinear_30d_100d.csv,9.764687454995679,141
+NLinear,480d,480,submissions/submission_nlinear_480d_100d.csv,25.809840917440653,124
+NLinear,7d,7,submissions/submission_nlinear_7d_100d.csv,9.460388722084797,146
